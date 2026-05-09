@@ -6,8 +6,8 @@
 <title>🎬 DramaCina API</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 *{margin:0;padding:0;box-sizing:border-box}
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#e4e4e7;min-height:100vh;overflow-x:hidden}
 .bg-grid{position:fixed;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.03) 1px,transparent 0);background-size:40px 40px;pointer-events:none;z-index:0}
 .glow-1{position:fixed;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%);border-radius:50%;pointer-events:none;z-index:0;animation:float 8s ease-in-out infinite}
@@ -32,8 +32,8 @@ h1{font-size:42px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec4
 .stat-num{font-size:32px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
 .stat-label{font-size:13px;color:#71717a;margin-top:4px;text-transform:uppercase;letter-spacing:1px}
 .platforms{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;margin-top:40px}
-.platform{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;transition:all .3s ease;position:relative}
-.platform:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.12);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.platform{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;transition:border-color .3s,box-shadow .3s;position:relative}
+.platform:hover{border-color:rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.3)}
 .platform::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
 .platform.gs::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}
 .platform.db::before{background:linear-gradient(90deg,#ec4899,#f472b6)}
@@ -41,7 +41,7 @@ h1{font-size:42px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec4
 .platform.dbt::before{background:linear-gradient(90deg,#10b981,#34d399)}
 .platform.dnv::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
 .platform-header{padding:24px 24px 16px;display:flex;align-items:center;gap:14px}
-.platform-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px}
+.platform-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
 .platform.gs .platform-icon{background:rgba(139,92,246,.15)}
 .platform.db .platform-icon{background:rgba(236,72,153,.15)}
 .platform.ml .platform-icon{background:rgba(59,130,246,.15)}
@@ -49,278 +49,459 @@ h1{font-size:42px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec4
 .platform.dnv .platform-icon{background:rgba(245,158,11,.15)}
 .platform-name{font-size:20px;font-weight:700;color:#fafafa}
 .platform-desc{font-size:13px;color:#71717a;margin-top:2px}
-.endpoints{padding:0 24px 24px}
-.endpoint{display:flex;align-items:center;gap:10px;padding:10px 14px;margin:6px 0;border-radius:10px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.04);cursor:pointer;transition:all .2s ease;text-decoration:none;color:inherit}
-.endpoint:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);transform:translateX(4px)}
+.endpoints{padding:0 16px 16px}
+.endpoint-item{margin:6px 0;border-radius:10px;border:1px solid rgba(255,255,255,.05);overflow:hidden;background:rgba(255,255,255,.02)}
+.endpoint-row{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .2s;user-select:none}
+.endpoint-row:hover{background:rgba(255,255,255,.05)}
+.endpoint-row.active{background:rgba(255,255,255,.06)}
 .method{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,.15);color:#4ade80;letter-spacing:.5px;flex-shrink:0}
-.ep-path{font-size:13px;color:#d4d4d8;font-family:'Courier New',monospace;font-weight:500;word-break:break-all}
-.ep-params{font-size:11px;color:#71717a;font-family:'Courier New',monospace}
-.try-btn{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border-radius:6px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:all .2s ease;flex-shrink:0;text-decoration:none}
-.platform.gs .try-btn{background:rgba(139,92,246,.15);color:#a78bfa}
-.platform.db .try-btn{background:rgba(236,72,153,.15);color:#f472b6}
-.platform.ml .try-btn{background:rgba(59,130,246,.15);color:#60a5fa}
-.platform.dbt .try-btn{background:rgba(16,185,129,.15);color:#34d399}
-.platform.dnv .try-btn{background:rgba(245,158,11,.15);color:#fbbf24}
-.try-btn:hover{filter:brightness(1.3);transform:scale(1.05)}
+.ep-info{flex:1;min-width:0}
+.ep-path{font-size:13px;color:#d4d4d8;font-family:'JetBrains Mono',monospace;font-weight:500}
+.ep-params{font-size:11px;color:#52525b;font-family:'JetBrains Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.toggle-icon{color:#52525b;font-size:12px;transition:transform .25s;flex-shrink:0}
+.endpoint-row.active .toggle-icon{transform:rotate(180deg)}
+.try-panel{display:none;border-top:1px solid rgba(255,255,255,.05);padding:16px}
+.try-panel.open{display:block}
+.try-label{font-size:11px;font-weight:700;color:#71717a;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:7px}
+.try-label::before{content:'';width:7px;height:7px;border-radius:50%;background:#4ade80;animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.param-group{margin-bottom:10px}
+.param-label{font-size:11px;color:#a1a1aa;margin-bottom:5px;font-weight:500}
+.param-input{width:100%;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 12px;color:#e4e4e7;font-size:13px;font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .2s}
+.platform.gs .param-input:focus{border-color:rgba(139,92,246,.5)}
+.platform.db .param-input:focus{border-color:rgba(236,72,153,.5)}
+.platform.ml .param-input:focus{border-color:rgba(59,130,246,.5)}
+.platform.dbt .param-input:focus{border-color:rgba(16,185,129,.5)}
+.platform.dnv .param-input:focus{border-color:rgba(245,158,11,.5)}
+.exec-btn{width:100%;padding:10px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;transition:filter .2s,transform .1s;color:#fff}
+.platform.gs .exec-btn{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}
+.platform.db .exec-btn{background:linear-gradient(135deg,#ec4899,#db2777)}
+.platform.ml .exec-btn{background:linear-gradient(135deg,#3b82f6,#2563eb)}
+.platform.dbt .exec-btn{background:linear-gradient(135deg,#10b981,#059669)}
+.platform.dnv .exec-btn{background:linear-gradient(135deg,#f59e0b,#d97706)}
+.exec-btn:hover{filter:brightness(1.15)}
+.exec-btn:active{transform:scale(.97)}
+.exec-btn.loading{opacity:.65;pointer-events:none}
+.response-box{margin-top:12px;background:#0d0d14;border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;display:none}
+.response-box.show{display:block}
+.response-header{padding:8px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between}
+.dots{display:flex;gap:5px}.dot{width:10px;height:10px;border-radius:50%}
+.dot-r{background:#ff5f57}.dot-y{background:#febc2e}.dot-g{background:#28c840}
+.res-status{font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px}
+.s-ok{background:rgba(34,197,94,.15);color:#4ade80}
+.s-err{background:rgba(239,68,68,.15);color:#f87171}
+.response-body{padding:14px;max-height:320px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-all;color:#d4d4d8}
+.response-body::-webkit-scrollbar{width:4px}
+.response-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+.jk{color:#a78bfa}.jstr{color:#4ade80}.jnum{color:#fb923c}.jbool{color:#60a5fa}.jnull{color:#f87171}
+.uptime{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#4ade80;font-size:13px;font-weight:500;margin-top:20px}
+.uptime-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:blink 1.5s infinite}
 footer{text-align:center;padding:60px 20px 40px;color:#52525b;font-size:13px}
 footer a{color:#8b5cf6;text-decoration:none}
 footer a:hover{text-decoration:underline}
-.pulse{animation:pulse 2s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-.uptime{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#4ade80;font-size:13px;font-weight:500;margin-top:20px}
-.uptime-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:pulse 1.5s ease-in-out infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 @media(max-width:768px){h1{font-size:28px}.subtitle{font-size:14px}.platforms{grid-template-columns:1fr}.stats{gap:20px}.stat-num{font-size:24px}header{padding:40px 16px 20px}.logo{font-size:48px}}
 </style>
 </head>
 <body>
 <div class="bg-grid"></div>
-<div class="glow-1"></div>
-<div class="glow-2"></div>
-<div class="glow-3"></div>
+<div class="glow-1"></div><div class="glow-2"></div><div class="glow-3"></div>
 
 <div class="container">
 <header>
-    <div class="logo">🎬</div>
-    <h1>DramaCina API</h1>
-    <p class="subtitle">Multi Platform Drama Streaming API Gateway</p>
-    <div class="badge-row">
-        <span class="badge badge-gs">GoodShort</span>
-        <span class="badge badge-db">DramaBox</span>
-        <span class="badge badge-ml">Melolo</span>
-        <span class="badge badge-dbt">DramaBite</span>
-        <span class="badge badge-dnv">DramaNova</span>
-    </div>
-    <div class="stats">
-        <div class="stat"><div class="stat-num">5</div><div class="stat-label">Platforms</div></div>
-        <div class="stat"><div class="stat-num">28</div><div class="stat-label">Endpoints</div></div>
-        <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Dramas</div></div>
-    </div>
-    <div class="uptime"><span class="uptime-dot"></span> API Online &bull; v2.0</div>
+  <div class="logo">🎬</div>
+  <h1>DramaCina API</h1>
+  <p class="subtitle">Multi Platform Drama Streaming API Gateway</p>
+  <div class="badge-row">
+    <span class="badge badge-gs">GoodShort</span>
+    <span class="badge badge-db">DramaBox</span>
+    <span class="badge badge-ml">Melolo</span>
+    <span class="badge badge-dbt">DramaBite</span>
+    <span class="badge badge-dnv">DramaNova</span>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-num" data-target="5">0</div><div class="stat-label">Platforms</div></div>
+    <div class="stat"><div class="stat-num" data-target="28">0</div><div class="stat-label">Endpoints</div></div>
+    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Dramas</div></div>
+  </div>
+  <div class="uptime"><span class="uptime-dot"></span> API Online &bull; v2.0</div>
 </header>
 
 <div class="platforms">
 
-    <!-- GoodShort -->
-    <div class="platform gs">
-        <div class="platform-header">
-            <div class="platform-icon">📺</div>
-            <div><div class="platform-name">GoodShort</div><div class="platform-desc">6 endpoints &bull; ID, PT, KR, TH</div></div>
-        </div>
-        <div class="endpoints">
-            <a class="endpoint" href="/goodshort/home?page=1&channel=id" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/goodshort/home</div><div class="ep-params">?page=1&channel=id</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/goodshort/search?q=cinta" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/goodshort/search</div><div class="ep-params">?q=cinta</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/goodshort/detail?id=12345" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/goodshort/detail</div><div class="ep-params">?id=xxx</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/goodshort/stream?id=12345&ep=1&quality=720p" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/goodshort/stream</div><div class="ep-params">?id=xxx&ep=1&quality=720p</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/goodshort/stream_fast?id=12345&ep=1&quality=720p" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/goodshort/stream_fast</div><div class="ep-params">?id=xxx&ep=1&quality=720p</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/goodshort/unlock?id=12345&quality=720p" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/goodshort/unlock</div><div class="ep-params">?id=xxx&quality=720p</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-        </div>
+  <!-- GoodShort -->
+  <div class="platform gs">
+    <div class="platform-header">
+      <div class="platform-icon">📺</div>
+      <div><div class="platform-name">GoodShort</div><div class="platform-desc">6 endpoints &bull; ID, PT, KR, TH</div></div>
     </div>
+    <div class="endpoints">
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/goodshort/home</div><div class="ep-params">?page=1&channel=id</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/goodshort/home" data-params='[{"key":"page","label":"Page","default":"1"},{"key":"channel","label":"Channel (id/pt/kr/th)","default":"id"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/goodshort/search</div><div class="ep-params">?q=cinta&page=1</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/goodshort/search" data-params='[{"key":"q","label":"Keyword","default":"cinta"},{"key":"page","label":"Page","default":"1"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/goodshort/detail</div><div class="ep-params">?id=xxx</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/goodshort/detail" data-params='[{"key":"id","label":"Book ID","default":""}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/goodshort/stream</div><div class="ep-params">?id=xxx&ep=1&quality=720p</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/goodshort/stream" data-params='[{"key":"id","label":"Book ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"quality","label":"Quality","default":"720p"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/goodshort/stream_fast</div><div class="ep-params">?id=xxx&ep=1&quality=720p</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/goodshort/stream_fast" data-params='[{"key":"id","label":"Book ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"quality","label":"Quality","default":"720p"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/goodshort/unlock</div><div class="ep-params">?id=xxx&quality=720p</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/goodshort/unlock" data-params='[{"key":"id","label":"Book ID","default":""},{"key":"quality","label":"Quality","default":"720p"}]'></div>
+      </div>
+    </div>
+  </div>
 
-    <!-- DramaBox -->
-    <div class="platform db">
-        <div class="platform-header">
-            <div class="platform-icon">🎭</div>
-            <div><div class="platform-name">DramaBox</div><div class="platform-desc">5 endpoints &bull; Multi language</div></div>
-        </div>
-        <div class="endpoints">
-            <a class="endpoint" href="/dramabox/home?page=1&size=10&lang=in" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabox/home</div><div class="ep-params">?page=1&size=10&lang=in</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramabox/rank?lang=in" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabox/rank</div><div class="ep-params">?lang=in</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramabox/search?q=romance&lang=in" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabox/search</div><div class="ep-params">?q=romance&lang=in</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramabox/detail?id=12345&lang=en" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabox/detail</div><div class="ep-params">?id=xxx&lang=en</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramabox/episodes?id=12345&lang=in" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabox/episodes</div><div class="ep-params">?id=xxx&lang=in</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-        </div>
+  <!-- DramaBox -->
+  <div class="platform db">
+    <div class="platform-header">
+      <div class="platform-icon">🎭</div>
+      <div><div class="platform-name">DramaBox</div><div class="platform-desc">5 endpoints &bull; Multi language</div></div>
     </div>
+    <div class="endpoints">
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabox/home</div><div class="ep-params">?page=1&size=10&lang=in</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabox/home" data-params='[{"key":"page","label":"Page","default":"1"},{"key":"size","label":"Size","default":"10"},{"key":"lang","label":"Language","default":"in"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabox/rank</div><div class="ep-params">?lang=in</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabox/rank" data-params='[{"key":"lang","label":"Language","default":"in"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabox/search</div><div class="ep-params">?q=romance&lang=in</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabox/search" data-params='[{"key":"q","label":"Keyword","default":"romance"},{"key":"page","label":"Page","default":"1"},{"key":"lang","label":"Language","default":"in"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabox/detail</div><div class="ep-params">?id=xxx&lang=en</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabox/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"en"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabox/episodes</div><div class="ep-params">?id=xxx&lang=in</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabox/episodes" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"in"}]'></div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Melolo -->
-    <div class="platform ml">
-        <div class="platform-header">
-            <div class="platform-icon">🎬</div>
-            <div><div class="platform-name">Melolo</div><div class="platform-desc">4 endpoints &bull; Indonesian focus</div></div>
-        </div>
-        <div class="endpoints">
-            <a class="endpoint" href="/melolo/home?lang=id&offset=0" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/melolo/home</div><div class="ep-params">?lang=id&offset=0</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/melolo/search?q=drama&lang=id" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/melolo/search</div><div class="ep-params">?q=drama&lang=id</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/melolo/detail?id=111&lang=id" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/melolo/detail</div><div class="ep-params">?id=xxx&lang=id</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/melolo/video?id=111&ep=1" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/melolo/video</div><div class="ep-params">?id=xxx&ep=1</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-        </div>
+  <!-- Melolo -->
+  <div class="platform ml">
+    <div class="platform-header">
+      <div class="platform-icon">🎬</div>
+      <div><div class="platform-name">Melolo</div><div class="platform-desc">4 endpoints &bull; Indonesian focus</div></div>
     </div>
+    <div class="endpoints">
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/melolo/home</div><div class="ep-params">?lang=id&offset=0</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/melolo/home" data-params='[{"key":"lang","label":"Language","default":"id"},{"key":"offset","label":"Offset","default":"0"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/melolo/search</div><div class="ep-params">?q=drama&lang=id</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/melolo/search" data-params='[{"key":"q","label":"Keyword","default":"drama"},{"key":"lang","label":"Language","default":"id"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/melolo/detail</div><div class="ep-params">?id=xxx&lang=id</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/melolo/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"id"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/melolo/video</div><div class="ep-params">?id=xxx&ep=1</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/melolo/video" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"ep","label":"Episode","default":"1"}]'></div>
+      </div>
+    </div>
+  </div>
 
-    <!-- DramaBite -->
-    <div class="platform dbt">
-        <div class="platform-header">
-            <div class="platform-icon">🍿</div>
-            <div><div class="platform-name">DramaBite</div><div class="platform-desc">8 endpoints &bull; Full featured</div></div>
-        </div>
-        <div class="endpoints">
-            <a class="endpoint" href="/dramabite/dramas?lang=id&page=0" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabite/dramas</div><div class="ep-params">?lang=id&page=0</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramabite/foryou?lang=id&page=0" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabite/foryou</div><div class="ep-params">?lang=id&page=0</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramabite/hot?lang=id" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabite/hot</div><div class="ep-params">?lang=id</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramabite/recommend?lang=id&page=0" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabite/recommend</div><div class="ep-params">?lang=id&page=0</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramabite/search?q=love&lang=id&limit=20" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabite/search</div><div class="ep-params">?q=love&lang=id&limit=20</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramabite/detail?id=222&lang=id" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabite/detail</div><div class="ep-params">?id=xxx&lang=id</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramabite/likes?id=222&lang=id" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabite/likes</div><div class="ep-params">?id=xxx&lang=id</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramabite/episode?id=222&ep=1&lang=id&quality=default" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramabite/episode</div><div class="ep-params">?id=xxx&ep=1&quality=default</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-        </div>
+  <!-- DramaBite -->
+  <div class="platform dbt">
+    <div class="platform-header">
+      <div class="platform-icon">🍿</div>
+      <div><div class="platform-name">DramaBite</div><div class="platform-desc">8 endpoints &bull; Full featured</div></div>
     </div>
+    <div class="endpoints">
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabite/dramas</div><div class="ep-params">?lang=id&page=0</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabite/dramas" data-params='[{"key":"lang","label":"Language","default":"id"},{"key":"page","label":"Page","default":"0"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabite/foryou</div><div class="ep-params">?lang=id&page=0</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabite/foryou" data-params='[{"key":"lang","label":"Language","default":"id"},{"key":"page","label":"Page","default":"0"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabite/hot</div><div class="ep-params">?lang=id</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabite/hot" data-params='[{"key":"lang","label":"Language","default":"id"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabite/recommend</div><div class="ep-params">?lang=id&page=0</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabite/recommend" data-params='[{"key":"lang","label":"Language","default":"id"},{"key":"page","label":"Page","default":"0"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabite/search</div><div class="ep-params">?q=love&lang=id&limit=20</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabite/search" data-params='[{"key":"q","label":"Keyword","default":"love"},{"key":"lang","label":"Language","default":"id"},{"key":"limit","label":"Limit","default":"20"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabite/detail</div><div class="ep-params">?id=xxx&lang=id</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabite/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"id"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabite/likes</div><div class="ep-params">?id=xxx&lang=id</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabite/likes" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"id"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramabite/episode</div><div class="ep-params">?id=xxx&ep=1&lang=id&quality=default</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramabite/episode" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"lang","label":"Language","default":"id"},{"key":"quality","label":"Quality","default":"default"}]'></div>
+      </div>
+    </div>
+  </div>
 
-    <!-- DramaNova -->
-    <div class="platform dnv">
-        <div class="platform-header">
-            <div class="platform-icon">⭐</div>
-            <div><div class="platform-name">DramaNova</div><div class="platform-desc">6 endpoints &bull; HD streaming</div></div>
-        </div>
-        <div class="endpoints">
-            <a class="endpoint" href="/dramanova/dramas?lang=in&page=1&size=20" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramanova/dramas</div><div class="ep-params">?lang=in&page=1&size=20</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramanova/detail?id=333&lang=in" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramanova/detail</div><div class="ep-params">?id=xxx&lang=in</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramanova/video?id=333&ep=1&lang=in" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramanova/video</div><div class="ep-params">?id=xxx&ep=1&lang=in</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramanova/search?q=action&lang=in" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramanova/search</div><div class="ep-params">?q=action&lang=in</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramanova/modules?lang=in" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramanova/modules</div><div class="ep-params">?lang=in</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-            <a class="endpoint" href="/dramanova/recommend?lang=in&category=dramanova_hot" target="_blank">
-                <span class="method">GET</span>
-                <div><div class="ep-path">/dramanova/recommend</div><div class="ep-params">?lang=in&category=dramanova_hot</div></div>
-                <span class="try-btn">Try →</span>
-            </a>
-        </div>
+  <!-- DramaNova -->
+  <div class="platform dnv">
+    <div class="platform-header">
+      <div class="platform-icon">⭐</div>
+      <div><div class="platform-name">DramaNova</div><div class="platform-desc">6 endpoints &bull; HD streaming</div></div>
     </div>
+    <div class="endpoints">
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramanova/dramas</div><div class="ep-params">?lang=in&page=1&size=20</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramanova/dramas" data-params='[{"key":"lang","label":"Language","default":"in"},{"key":"page","label":"Page","default":"1"},{"key":"size","label":"Size","default":"20"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramanova/detail</div><div class="ep-params">?id=xxx&lang=in</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramanova/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"in"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramanova/video</div><div class="ep-params">?id=xxx&ep=1&lang=in</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramanova/video" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"lang","label":"Language","default":"in"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramanova/search</div><div class="ep-params">?q=action&lang=in</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramanova/search" data-params='[{"key":"q","label":"Keyword","default":"action"},{"key":"lang","label":"Language","default":"in"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramanova/modules</div><div class="ep-params">?lang=in</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramanova/modules" data-params='[{"key":"lang","label":"Language","default":"in"}]'></div>
+      </div>
+      <div class="endpoint-item">
+        <div class="endpoint-row" onclick="togglePanel(this)">
+          <span class="method">GET</span>
+          <div class="ep-info"><div class="ep-path">/dramanova/recommend</div><div class="ep-params">?lang=in&category=dramanova_hot</div></div>
+          <span class="toggle-icon">▼</span>
+        </div>
+        <div class="try-panel" data-url="/dramanova/recommend" data-params='[{"key":"lang","label":"Language","default":"in"},{"key":"category","label":"Category Key","default":"dramanova_hot"},{"key":"page","label":"Page","default":"1"},{"key":"size","label":"Size","default":"5"}]'></div>
+      </div>
+    </div>
+  </div>
 
 </div>
 
 <footer>
-    <p>Built with ❤️ by <a href="#">SanzzXD</a></p>
-    <p style="margin-top:8px;font-size:12px;color:#3f3f46">DramaCina Multi Platform API &bull; v2.0 &bull; Powered by Vercel</p>
+  <p>Built with ❤️ by <a href="#">SanzzXD</a></p>
+  <p style="margin-top:8px;font-size:12px;color:#3f3f46">DramaCina Multi Platform API &bull; v2.0 &bull; Powered by Vercel</p>
 </footer>
 </div>
 
 <script>
-document.querySelectorAll('.endpoint').forEach(el => {
-    el.addEventListener('mouseenter', () => {
-        el.style.transition = 'all 0.2s ease';
+// Counter animation
+document.querySelectorAll('.stat-num[data-target]').forEach(el => {
+  const target = parseInt(el.dataset.target), step = Math.ceil(target / 30);
+  let cur = 0;
+  const t = setInterval(() => { cur = Math.min(cur + step, target); el.textContent = cur; if (cur >= target) clearInterval(t); }, 30);
+});
+
+// Build try panels dynamically
+document.querySelectorAll('.try-panel').forEach(panel => {
+  const params = JSON.parse(panel.dataset.params || '[]');
+  const url = panel.dataset.url;
+  let html = '<div class="try-label">Try It Live</div>';
+  params.forEach(p => {
+    html += `<div class="param-group"><div class="param-label">${p.label}</div><input class="param-input" data-key="${p.key}" value="${p.default}" placeholder="${p.default || p.key}"/></div>`;
+  });
+  html += `<button class="exec-btn" onclick="execute(this,'${url}')">▶&nbsp; Execute</button>`;
+  html += `<div class="response-box"><div class="response-header"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span class="res-status"></span></div><div class="response-body"></div></div>`;
+  panel.innerHTML = html;
+});
+
+// Toggle open/close panel
+function togglePanel(row) {
+  const panel = row.nextElementSibling;
+  const isOpen = panel.classList.contains('open');
+  row.closest('.endpoints').querySelectorAll('.try-panel.open').forEach(p => {
+    p.classList.remove('open');
+    p.previousElementSibling.classList.remove('active');
+  });
+  if (!isOpen) {
+    panel.classList.add('open');
+    row.classList.add('active');
+    setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 120);
+  }
+}
+
+// Syntax highlight JSON
+function highlight(json) {
+  return json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+    .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
+      if (/^"/.test(m)) return /:$/.test(m) ? `<span class="jk">${m}</span>` : `<span class="jstr">${m}</span>`;
+      if (/true|false/.test(m)) return `<span class="jbool">${m}</span>`;
+      if (/null/.test(m)) return `<span class="jnull">${m}</span>`;
+      return `<span class="jnum">${m}</span>`;
     });
-});
-document.querySelectorAll('.stat-num').forEach(el => {
-    const target = el.textContent;
-    if (target === '∞') return;
-    const num = parseInt(target);
-    let current = 0;
-    const step = Math.ceil(num / 30);
-    const timer = setInterval(() => {
-        current += step;
-        if (current >= num) { current = num; clearInterval(timer); }
-        el.textContent = current;
-    }, 30);
-});
+}
+
+// Execute request
+async function execute(btn, url) {
+  const panel = btn.closest('.try-panel');
+  const qs = [];
+  panel.querySelectorAll('.param-input').forEach(inp => {
+    if (inp.value.trim()) qs.push(`${inp.dataset.key}=${encodeURIComponent(inp.value.trim())}`);
+  });
+  const fullUrl = url + (qs.length ? '?' + qs.join('&') : '');
+  const resBox = panel.querySelector('.response-box');
+  const resBody = panel.querySelector('.response-body');
+  const resStat = panel.querySelector('.res-status');
+
+  btn.classList.add('loading');
+  btn.innerHTML = '<span style="display:inline-block;animation:spin .7s linear infinite">⟳</span>&nbsp; Loading...';
+  resBox.classList.add('show');
+  resBody.innerHTML = '<span style="color:#52525b">Fetching...</span>';
+  resStat.textContent = '';
+  resStat.className = 'res-status';
+
+  try {
+    const t0 = Date.now();
+    const res = await fetch(fullUrl);
+    const ms = Date.now() - t0;
+    const data = await res.json();
+    resBody.innerHTML = highlight(JSON.stringify(data, null, 2));
+    resStat.textContent = `${res.status} · ${ms}ms`;
+    resStat.classList.add(res.ok ? 's-ok' : 's-err');
+  } catch(e) {
+    resBody.textContent = 'Error: ' + e.message;
+    resStat.textContent = 'Error';
+    resStat.classList.add('s-err');
+  } finally {
+    btn.classList.remove('loading');
+    btn.innerHTML = '▶&nbsp; Execute';
+  }
+}
 </script>
 </body>
 </html>
