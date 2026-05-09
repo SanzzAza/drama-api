@@ -3,495 +3,761 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🎬 DramaCina API</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+<title>DramaCina API</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+:root {
+  --bg: #080b0f;
+  --surface: #0f1318;
+  --surface2: #151c24;
+  --border: rgba(255,255,255,.07);
+  --border2: rgba(255,255,255,.12);
+  --text: #e8edf2;
+  --muted: #4a5568;
+  --muted2: #718096;
+  --accent: #00d4ff;
+  --accent2: #ff6b6b;
+  --green: #00e5a0;
+  --gold: #ffd166;
+
+  --gs: #a78bfa;
+  --db: #f472b6;
+  --ml: #38bdf8;
+  --dbt: #34d399;
+  --dnv: #fb923c;
+}
 *{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:#0a0a0f;color:#e4e4e7;min-height:100vh;overflow-x:hidden}
-.bg-grid{position:fixed;top:0;left:0;width:100%;height:100%;background-image:radial-gradient(circle at 1px 1px,rgba(255,255,255,.03) 1px,transparent 0);background-size:40px 40px;pointer-events:none;z-index:0}
-.glow-1{position:fixed;top:-200px;right:-200px;width:600px;height:600px;background:radial-gradient(circle,rgba(139,92,246,.15),transparent 70%);border-radius:50%;pointer-events:none;z-index:0;animation:float 8s ease-in-out infinite}
-.glow-2{position:fixed;bottom:-200px;left:-200px;width:500px;height:500px;background:radial-gradient(circle,rgba(236,72,153,.12),transparent 70%);border-radius:50%;pointer-events:none;z-index:0;animation:float 10s ease-in-out infinite reverse}
-.glow-3{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(59,130,246,.08),transparent 70%);border-radius:50%;pointer-events:none;z-index:0;animation:float 12s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-30px) scale(1.05)}}
-.container{position:relative;z-index:1;max-width:1200px;margin:0 auto;padding:20px}
-header{text-align:center;padding:60px 20px 40px}
-.logo{font-size:64px;margin-bottom:16px;animation:bounce 2s ease-in-out infinite}
-@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-h1{font-size:42px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec4899,#3b82f6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px;letter-spacing:-1px}
-.subtitle{font-size:18px;color:#a1a1aa;font-weight:300;margin-bottom:12px}
-.badge-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:20px}
-.badge{padding:6px 16px;border-radius:20px;font-size:12px;font-weight:600;letter-spacing:.5px;border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(10px)}
-.badge-gs{background:rgba(139,92,246,.15);color:#a78bfa;border-color:rgba(139,92,246,.3)}
-.badge-db{background:rgba(236,72,153,.15);color:#f472b6;border-color:rgba(236,72,153,.3)}
-.badge-ml{background:rgba(59,130,246,.15);color:#60a5fa;border-color:rgba(59,130,246,.3)}
-.badge-dbt{background:rgba(16,185,129,.15);color:#34d399;border-color:rgba(16,185,129,.3)}
-.badge-dnv{background:rgba(245,158,11,.15);color:#fbbf24;border-color:rgba(245,158,11,.3)}
-.stats{display:flex;gap:40px;justify-content:center;margin:30px 0;flex-wrap:wrap}
-.stat{text-align:center}
-.stat-num{font-size:32px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.stat-label{font-size:13px;color:#71717a;margin-top:4px;text-transform:uppercase;letter-spacing:1px}
-.platforms{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:24px;margin-top:40px}
-.platform{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);border-radius:16px;overflow:hidden;transition:border-color .3s,box-shadow .3s;position:relative}
-.platform:hover{border-color:rgba(255,255,255,.1);box-shadow:0 20px 60px rgba(0,0,0,.3)}
-.platform::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0}
-.platform.gs::before{background:linear-gradient(90deg,#8b5cf6,#a78bfa)}
-.platform.db::before{background:linear-gradient(90deg,#ec4899,#f472b6)}
-.platform.ml::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
-.platform.dbt::before{background:linear-gradient(90deg,#10b981,#34d399)}
-.platform.dnv::before{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
-.platform-header{padding:24px 24px 16px;display:flex;align-items:center;gap:14px}
-.platform-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
-.platform.gs .platform-icon{background:rgba(139,92,246,.15)}
-.platform.db .platform-icon{background:rgba(236,72,153,.15)}
-.platform.ml .platform-icon{background:rgba(59,130,246,.15)}
-.platform.dbt .platform-icon{background:rgba(16,185,129,.15)}
-.platform.dnv .platform-icon{background:rgba(245,158,11,.15)}
-.platform-name{font-size:20px;font-weight:700;color:#fafafa}
-.platform-desc{font-size:13px;color:#71717a;margin-top:2px}
-.endpoints{padding:0 16px 16px}
-.endpoint-item{margin:6px 0;border-radius:10px;border:1px solid rgba(255,255,255,.05);overflow:hidden;background:rgba(255,255,255,.02)}
-.endpoint-row{display:flex;align-items:center;gap:10px;padding:10px 14px;cursor:pointer;transition:background .2s;user-select:none}
-.endpoint-row:hover{background:rgba(255,255,255,.05)}
-.endpoint-row.active{background:rgba(255,255,255,.06)}
-.method{font-size:11px;font-weight:700;padding:3px 8px;border-radius:4px;background:rgba(34,197,94,.15);color:#4ade80;letter-spacing:.5px;flex-shrink:0}
-.ep-info{flex:1;min-width:0}
-.ep-path{font-size:13px;color:#d4d4d8;font-family:'JetBrains Mono',monospace;font-weight:500}
-.ep-params{font-size:11px;color:#52525b;font-family:'JetBrains Mono',monospace;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.toggle-icon{color:#52525b;font-size:12px;transition:transform .25s;flex-shrink:0}
-.endpoint-row.active .toggle-icon{transform:rotate(180deg)}
-.try-panel{display:none;border-top:1px solid rgba(255,255,255,.05);padding:16px}
-.try-panel.open{display:block}
-.try-label{font-size:11px;font-weight:700;color:#71717a;letter-spacing:1px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:7px}
-.try-label::before{content:'';width:7px;height:7px;border-radius:50%;background:#4ade80;animation:blink 1.4s infinite}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-.param-group{margin-bottom:10px}
-.param-label{font-size:11px;color:#a1a1aa;margin-bottom:5px;font-weight:500}
-.param-input{width:100%;background:rgba(0,0,0,.35);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 12px;color:#e4e4e7;font-size:13px;font-family:'JetBrains Mono',monospace;outline:none;transition:border-color .2s}
-.platform.gs .param-input:focus{border-color:rgba(139,92,246,.5)}
-.platform.db .param-input:focus{border-color:rgba(236,72,153,.5)}
-.platform.ml .param-input:focus{border-color:rgba(59,130,246,.5)}
-.platform.dbt .param-input:focus{border-color:rgba(16,185,129,.5)}
-.platform.dnv .param-input:focus{border-color:rgba(245,158,11,.5)}
-.exec-btn{width:100%;padding:10px;border-radius:8px;border:none;font-size:13px;font-weight:700;cursor:pointer;margin-top:6px;display:flex;align-items:center;justify-content:center;gap:8px;transition:filter .2s,transform .1s;color:#fff}
-.platform.gs .exec-btn{background:linear-gradient(135deg,#8b5cf6,#7c3aed)}
-.platform.db .exec-btn{background:linear-gradient(135deg,#ec4899,#db2777)}
-.platform.ml .exec-btn{background:linear-gradient(135deg,#3b82f6,#2563eb)}
-.platform.dbt .exec-btn{background:linear-gradient(135deg,#10b981,#059669)}
-.platform.dnv .exec-btn{background:linear-gradient(135deg,#f59e0b,#d97706)}
-.exec-btn:hover{filter:brightness(1.15)}
-.exec-btn:active{transform:scale(.97)}
-.exec-btn.loading{opacity:.65;pointer-events:none}
-.response-box{margin-top:12px;background:#0d0d14;border:1px solid rgba(255,255,255,.07);border-radius:10px;overflow:hidden;display:none}
-.response-box.show{display:block}
-.response-header{padding:8px 14px;background:rgba(255,255,255,.03);border-bottom:1px solid rgba(255,255,255,.05);display:flex;align-items:center;justify-content:space-between}
-.dots{display:flex;gap:5px}.dot{width:10px;height:10px;border-radius:50%}
-.dot-r{background:#ff5f57}.dot-y{background:#febc2e}.dot-g{background:#28c840}
-.res-status{font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px}
-.s-ok{background:rgba(34,197,94,.15);color:#4ade80}
-.s-err{background:rgba(239,68,68,.15);color:#f87171}
-.response-body{padding:14px;max-height:320px;overflow-y:auto;font-family:'JetBrains Mono',monospace;font-size:12px;line-height:1.7;white-space:pre-wrap;word-break:break-all;color:#d4d4d8}
-.response-body::-webkit-scrollbar{width:4px}
-.response-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
-.jk{color:#a78bfa}.jstr{color:#4ade80}.jnum{color:#fb923c}.jbool{color:#60a5fa}.jnull{color:#f87171}
-.url-preview-wrap{display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:6px}
-.url-preview{flex:1;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#71717a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:36px;line-height:20px}
-.copy-btn{flex-shrink:0;width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);color:#a1a1aa;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.copy-btn:hover{background:rgba(255,255,255,.1);color:#fff}
-.copy-btn.copied{background:rgba(34,197,94,.15);color:#4ade80;border-color:rgba(34,197,94,.3)}
-.uptime{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#4ade80;font-size:13px;font-weight:500;margin-top:20px}
-.uptime-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:blink 1.5s infinite}
-footer{text-align:center;padding:60px 20px 40px;color:#52525b;font-size:13px}
-footer a{color:#8b5cf6;text-decoration:none}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Syne',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+/* ── Noise texture overlay ── */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:.6;
+}
+
+/* ── Scanlines ── */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,.03) 2px,rgba(0,0,0,.03) 4px);
+  pointer-events:none;z-index:9998;
+}
+
+/* ── Ambient glows ── */
+.amb{position:fixed;border-radius:50%;pointer-events:none;filter:blur(120px);opacity:.18}
+.amb-1{width:700px;height:700px;top:-200px;right:-200px;background:#a78bfa;animation:drift 15s ease-in-out infinite}
+.amb-2{width:500px;height:500px;bottom:-150px;left:-100px;background:#38bdf8;animation:drift 20s ease-in-out infinite reverse}
+.amb-3{width:400px;height:400px;top:50%;left:40%;background:#ff6b6b;opacity:.08;animation:drift 18s ease-in-out infinite 5s}
+@keyframes drift{0%,100%{transform:translate(0,0)}33%{transform:translate(30px,-20px)}66%{transform:translate(-20px,30px)}}
+
+/* ── Layout ── */
+.wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 24px 80px}
+
+/* ── Header ── */
+header{
+  padding:64px 0 56px;
+  display:flex;flex-direction:column;align-items:center;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+  margin-bottom:56px;
+  position:relative;
+}
+header::after{
+  content:'';
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);
+  width:200px;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);
+}
+
+.eyebrow{
+  font-size:11px;letter-spacing:4px;text-transform:uppercase;
+  color:var(--accent);font-weight:600;
+  margin-bottom:20px;
+  display:flex;align-items:center;gap:10px;
+}
+.eyebrow::before,.eyebrow::after{content:'';flex:1;max-width:40px;height:1px;background:currentColor;opacity:.4}
+
+h1{
+  font-size:clamp(48px,8vw,88px);
+  font-weight:800;
+  line-height:.95;
+  letter-spacing:-3px;
+  margin-bottom:4px;
+}
+h1 em{
+  font-style:normal;
+  color:transparent;
+  -webkit-text-stroke:1px rgba(255,255,255,.25);
+  display:block;
+  letter-spacing:-2px;
+}
+h1 strong{
+  font-style:normal;
+  background:linear-gradient(120deg,var(--accent),var(--gs),var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  display:block;
+}
+
+.tagline{
+  font-size:15px;color:var(--muted2);
+  font-weight:400;letter-spacing:.5px;
+  margin-top:20px;
+}
+
+/* Platform pills */
+.pills{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:28px}
+.pill{
+  padding:5px 14px;border-radius:4px;
+  font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;
+  border:1px solid;
+}
+.pill-gs{color:var(--gs);border-color:color-mix(in srgb,var(--gs) 30%,transparent);background:color-mix(in srgb,var(--gs) 8%,transparent)}
+.pill-db{color:var(--db);border-color:color-mix(in srgb,var(--db) 30%,transparent);background:color-mix(in srgb,var(--db) 8%,transparent)}
+.pill-ml{color:var(--ml);border-color:color-mix(in srgb,var(--ml) 30%,transparent);background:color-mix(in srgb,var(--ml) 8%,transparent)}
+.pill-dbt{color:var(--dbt);border-color:color-mix(in srgb,var(--dbt) 30%,transparent);background:color-mix(in srgb,var(--dbt) 8%,transparent)}
+.pill-dnv{color:var(--dnv);border-color:color-mix(in srgb,var(--dnv) 30%,transparent);background:color-mix(in srgb,var(--dnv) 8%,transparent)}
+
+/* Stats */
+.stats-row{display:flex;gap:0;margin-top:40px;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.stat{flex:1;padding:20px 24px;text-align:center;border-right:1px solid var(--border)}
+.stat:last-child{border-right:none}
+.stat-n{font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1}
+.stat-n.c-acc{color:var(--accent)}
+.stat-n.c-gs{color:var(--gs)}
+.stat-l{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-top:6px;font-weight:600}
+.online{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);margin-top:12px;font-family:'DM Mono',monospace;font-weight:500;letter-spacing:.5px}
+.online-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+/* ── Platform sections ── */
+.section-label{
+  font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--muted);
+  font-weight:700;margin-bottom:20px;
+  display:flex;align-items:center;gap:12px;
+}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+.platforms{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+
+.platform{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;overflow:hidden;
+  transition:border-color .25s,box-shadow .25s;
+}
+.platform:hover{border-color:var(--border2);box-shadow:0 8px 40px rgba(0,0,0,.4)}
+
+.platform-top{
+  padding:20px 20px 0;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--border);
+  padding-bottom:16px;
+}
+.p-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;flex-shrink:0;
+}
+.p-name{font-size:16px;font-weight:700;letter-spacing:-.3px}
+.p-meta{font-size:11px;color:var(--muted2);margin-top:2px;font-family:'DM Mono',monospace}
+
+/* Color accents per platform */
+.platform.gs{--pc:var(--gs)}
+.platform.db{--pc:var(--db)}
+.platform.ml{--pc:var(--ml)}
+.platform.dbt{--pc:var(--dbt)}
+.platform.dnv{--pc:var(--dnv)}
+
+.platform .p-icon{background:color-mix(in srgb,var(--pc) 12%,transparent)}
+.platform .p-name{color:var(--pc)}
+
+/* Top accent line */
+.platform::before{
+  content:'';display:block;
+  height:2px;
+  background:var(--pc);
+  opacity:.6;
+}
+
+/* ── Endpoint items ── */
+.ep-list{padding:12px}
+.ep-item{border-radius:10px;overflow:hidden;margin-bottom:8px;border:1px solid transparent;transition:border-color .2s}
+.ep-item:last-child{margin-bottom:0}
+.ep-item.open{border-color:color-mix(in srgb,var(--pc) 25%,transparent)}
+
+.ep-head{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 12px;cursor:pointer;
+  background:var(--surface2);border-radius:8px;
+  transition:background .15s;
+}
+.ep-item.open .ep-head{border-radius:8px 8px 0 0}
+.ep-head:hover{background:color-mix(in srgb,var(--pc) 8%,var(--surface2))}
+
+.method-badge{
+  font-size:10px;font-weight:700;letter-spacing:1px;
+  padding:3px 8px;border-radius:4px;flex-shrink:0;
+  background:color-mix(in srgb,var(--green) 15%,transparent);
+  color:var(--green);
+  font-family:'DM Mono',monospace;
+}
+.ep-path-wrap{flex:1;min-width:0}
+.ep-path{
+  font-size:12px;font-family:'DM Mono',monospace;
+  color:var(--text);font-weight:500;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ep-qs{
+  font-size:10px;font-family:'DM Mono',monospace;
+  color:var(--muted);margin-top:1px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.ep-chevron{
+  color:var(--muted);font-size:11px;flex-shrink:0;
+  transition:transform .25s;
+}
+.ep-item.open .ep-chevron{transform:rotate(180deg);color:var(--pc)}
+
+/* ── Try panel ── */
+.try-panel{display:none;background:var(--surface2);border-top:1px solid var(--border);padding:16px}
+.ep-item.open .try-panel{display:block}
+
+.try-header{
+  font-size:10px;letter-spacing:2px;text-transform:uppercase;
+  color:var(--pc);font-weight:700;
+  display:flex;align-items:center;gap:8px;margin-bottom:14px;
+}
+.try-header::after{content:'';flex:1;height:1px;background:color-mix(in srgb,var(--pc) 20%,transparent)}
+
+.params-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:10px;margin-bottom:12px}
+.param-group{}
+.param-label{font-size:10px;letter-spacing:.5px;color:var(--muted2);margin-bottom:5px;font-weight:600;text-transform:uppercase}
+.param-input{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:7px 10px;
+  color:var(--text);
+  font-size:12px;
+  font-family:'DM Mono',monospace;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s;
+}
+.param-input:focus{
+  border-color:var(--pc);
+  box-shadow:0 0 0 3px color-mix(in srgb,var(--pc) 12%,transparent);
+}
+
+/* URL bar */
+.url-row{display:flex;gap:8px;margin-bottom:10px;align-items:stretch}
+.url-display{
+  flex:1;min-width:0;
+  background:var(--bg);border:1px solid var(--border);border-radius:7px;
+  padding:7px 11px;
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--muted2);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  display:flex;align-items:center;gap:6px;
+}
+.url-display .url-method{color:var(--green);font-weight:700;flex-shrink:0}
+.url-display .url-text{overflow:hidden;text-overflow:ellipsis}
+.copy-url-btn{
+  flex-shrink:0;
+  padding:0 12px;
+  background:var(--bg);border:1px solid var(--border);border-radius:7px;
+  color:var(--muted2);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;font-family:'DM Mono',monospace;
+}
+.copy-url-btn:hover{border-color:var(--pc);color:var(--pc)}
+.copy-url-btn.ok{border-color:var(--green);color:var(--green);background:color-mix(in srgb,var(--green) 8%,transparent)}
+
+/* Run button */
+.run-btn{
+  width:100%;padding:10px 16px;
+  border-radius:8px;border:none;cursor:pointer;
+  font-family:'Syne',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;
+  background:var(--pc);color:#000;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:opacity .2s,transform .1s,filter .2s;
+}
+.run-btn:hover{filter:brightness(1.15)}
+.run-btn:active{transform:scale(.98)}
+.run-btn.busy{opacity:.6;pointer-events:none}
+
+/* Response */
+.resp-box{
+  margin-top:12px;
+  border:1px solid var(--border);border-radius:10px;overflow:hidden;
+  display:none;
+}
+.resp-box.show{display:block}
+.resp-bar{
+  padding:8px 14px;
+  background:var(--bg);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.resp-dots{display:flex;gap:5px}
+.rd{width:9px;height:9px;border-radius:50%}
+.rd-r{background:#ff5f57}.rd-y{background:#febc2e}.rd-g{background:#28c840}
+.resp-meta{display:flex;align-items:center;gap:8px}
+.resp-label{font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+.resp-code{
+  font-size:11px;font-weight:700;padding:2px 10px;border-radius:20px;
+  font-family:'DM Mono',monospace;
+}
+.rc-ok{background:color-mix(in srgb,var(--green) 15%,transparent);color:var(--green)}
+.rc-err{background:color-mix(in srgb,var(--accent2) 15%,transparent);color:var(--accent2)}
+.resp-body{
+  padding:14px;
+  max-height:300px;overflow-y:auto;
+  font-family:'DM Mono',monospace;font-size:11.5px;line-height:1.75;
+  white-space:pre-wrap;word-break:break-all;color:#94a3b8;
+  background:var(--bg);
+}
+.resp-body::-webkit-scrollbar{width:3px}
+.resp-body::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+
+/* JSON colors */
+.jk{color:#7dd3fc}.jstr{color:#86efac}.jnum{color:#fdba74}.jbool{color:#c084fc}.jnull{color:#f87171}
+
+/* ── Footer ── */
+footer{
+  border-top:1px solid var(--border);
+  padding:40px 0 0;
+  margin-top:80px;
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+}
+footer p{font-size:12px;color:var(--muted);font-family:'DM Mono',monospace}
+footer a{color:var(--accent);text-decoration:none}
 footer a:hover{text-decoration:underline}
+.footer-badge{font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:4px 12px;border:1px solid var(--border);border-radius:4px;color:var(--muted)}
+
 @keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-@media(max-width:768px){h1{font-size:28px}.subtitle{font-size:14px}.platforms{grid-template-columns:1fr}.stats{gap:20px}.stat-num{font-size:24px}header{padding:40px 16px 20px}.logo{font-size:48px}}
+.spinning{display:inline-block;animation:spin .7s linear infinite}
+
+@media(max-width:640px){
+  h1{font-size:48px;letter-spacing:-2px}
+  .stats-row{flex-wrap:wrap}
+  .stat{min-width:50%}
+  .platforms{grid-template-columns:1fr}
+  footer{flex-direction:column;align-items:flex-start}
+}
 </style>
 </head>
 <body>
-<div class="bg-grid"></div>
-<div class="glow-1"></div><div class="glow-2"></div><div class="glow-3"></div>
+<div class="amb amb-1"></div>
+<div class="amb amb-2"></div>
+<div class="amb amb-3"></div>
 
-<div class="container">
+<div class="wrap">
+
 <header>
-  <div class="logo">🎬</div>
-  <h1>DramaCina API</h1>
-  <p class="subtitle">Multi Platform Drama Streaming API Gateway</p>
-  <div class="badge-row">
-    <span class="badge badge-gs">GoodShort</span>
-    <span class="badge badge-db">DramaBox</span>
-    <span class="badge badge-ml">Melolo</span>
-    <span class="badge badge-dbt">DramaBite</span>
-    <span class="badge badge-dnv">DramaNova</span>
+  <div class="eyebrow">Streaming API Gateway</div>
+  <h1>
+    <em>Drama</em>
+    <strong>Cina</strong>
+  </h1>
+  <p class="tagline">Multi-platform REST API · 5 sources · 28 endpoints</p>
+  <div class="pills">
+    <span class="pill pill-gs">GoodShort</span>
+    <span class="pill pill-db">DramaBox</span>
+    <span class="pill pill-ml">Melolo</span>
+    <span class="pill pill-dbt">DramaBite</span>
+    <span class="pill pill-dnv">DramaNova</span>
   </div>
-  <div class="stats">
-    <div class="stat"><div class="stat-num" data-target="5">0</div><div class="stat-label">Platforms</div></div>
-    <div class="stat"><div class="stat-num" data-target="28">0</div><div class="stat-label">Endpoints</div></div>
-    <div class="stat"><div class="stat-num">∞</div><div class="stat-label">Dramas</div></div>
+  <div class="stats-row" style="width:100%;max-width:480px;margin-top:36px">
+    <div class="stat">
+      <div class="stat-n c-acc" data-count="5">0</div>
+      <div class="stat-l">Platforms</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n c-gs" data-count="28">0</div>
+      <div class="stat-l">Endpoints</div>
+    </div>
+    <div class="stat">
+      <div class="stat-n" style="color:var(--gold)">∞</div>
+      <div class="stat-l">Dramas</div>
+    </div>
   </div>
-  <div class="uptime"><span class="uptime-dot"></span> API Online &bull; v2.0</div>
+  <div class="online" style="margin-top:16px">
+    <span class="online-dot"></span>
+    <span>API ONLINE · v2.0</span>
+  </div>
 </header>
+
+<div class="section-label">Platforms & Endpoints</div>
 
 <div class="platforms">
 
   <!-- GoodShort -->
   <div class="platform gs">
-    <div class="platform-header">
-      <div class="platform-icon">📺</div>
-      <div><div class="platform-name">GoodShort</div><div class="platform-desc">6 endpoints &bull; ID, PT, KR, TH</div></div>
+    <div class="platform-top">
+      <div class="p-icon">📺</div>
+      <div>
+        <div class="p-name">GoodShort</div>
+        <div class="p-meta">6 endpoints · ID, PT, KR, TH</div>
+      </div>
     </div>
-    <div class="endpoints">
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/goodshort/home</div><div class="ep-params">?page=1&channel=id</div></div>
-          <span class="toggle-icon">▼</span>
+    <div class="ep-list">
+      <div class="ep-item" data-url="/goodshort/home" data-params='[{"key":"page","label":"Page","default":"1"},{"key":"channel","label":"Channel","default":"id"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/goodshort/home</div><div class="ep-qs">?page=1&channel=id</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/goodshort/home" data-params='[{"key":"page","label":"Page","default":"1"},{"key":"channel","label":"Channel (id/pt/kr/th)","default":"id"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/goodshort/search</div><div class="ep-params">?q=cinta&page=1</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/goodshort/search" data-params='[{"key":"q","label":"Keyword","default":"cinta"},{"key":"page","label":"Page","default":"1"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/goodshort/search</div><div class="ep-qs">?q=cinta&page=1</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/goodshort/search" data-params='[{"key":"q","label":"Keyword","default":"cinta"},{"key":"page","label":"Page","default":"1"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/goodshort/detail</div><div class="ep-params">?id=xxx</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/goodshort/detail" data-params='[{"key":"id","label":"Book ID","default":""}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/goodshort/detail</div><div class="ep-qs">?id=xxx</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/goodshort/detail" data-params='[{"key":"id","label":"Book ID","default":""}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/goodshort/stream</div><div class="ep-params">?id=xxx&ep=1&quality=720p</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/goodshort/stream" data-params='[{"key":"id","label":"Book ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"quality","label":"Quality","default":"720p"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/goodshort/stream</div><div class="ep-qs">?id=xxx&ep=1&quality=720p</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/goodshort/stream" data-params='[{"key":"id","label":"Book ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"quality","label":"Quality","default":"720p"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/goodshort/stream_fast</div><div class="ep-params">?id=xxx&ep=1&quality=720p</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/goodshort/stream_fast" data-params='[{"key":"id","label":"Book ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"quality","label":"Quality","default":"720p"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/goodshort/stream_fast</div><div class="ep-qs">?id=xxx&ep=1&quality=720p</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/goodshort/stream_fast" data-params='[{"key":"id","label":"Book ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"quality","label":"Quality","default":"720p"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/goodshort/unlock</div><div class="ep-params">?id=xxx&quality=720p</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/goodshort/unlock" data-params='[{"key":"id","label":"Book ID","default":""},{"key":"quality","label":"Quality","default":"720p"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/goodshort/unlock</div><div class="ep-qs">?id=xxx&quality=720p</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/goodshort/unlock" data-params='[{"key":"id","label":"Book ID","default":""},{"key":"quality","label":"Quality","default":"720p"}]'></div>
       </div>
     </div>
   </div>
 
   <!-- DramaBox -->
   <div class="platform db">
-    <div class="platform-header">
-      <div class="platform-icon">🎭</div>
-      <div><div class="platform-name">DramaBox</div><div class="platform-desc">5 endpoints &bull; Multi language</div></div>
+    <div class="platform-top">
+      <div class="p-icon">🎭</div>
+      <div>
+        <div class="p-name">DramaBox</div>
+        <div class="p-meta">5 endpoints · Multi language</div>
+      </div>
     </div>
-    <div class="endpoints">
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabox/home</div><div class="ep-params">?page=1&size=10&lang=in</div></div>
-          <span class="toggle-icon">▼</span>
+    <div class="ep-list">
+      <div class="ep-item" data-url="/dramabox/home" data-params='[{"key":"page","label":"Page","default":"1"},{"key":"size","label":"Size","default":"10"},{"key":"lang","label":"Lang","default":"in"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabox/home</div><div class="ep-qs">?page=1&size=10&lang=in</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabox/home" data-params='[{"key":"page","label":"Page","default":"1"},{"key":"size","label":"Size","default":"10"},{"key":"lang","label":"Language","default":"in"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabox/rank</div><div class="ep-params">?lang=in</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramabox/rank" data-params='[{"key":"lang","label":"Lang","default":"in"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabox/rank</div><div class="ep-qs">?lang=in</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabox/rank" data-params='[{"key":"lang","label":"Language","default":"in"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabox/search</div><div class="ep-params">?q=romance&lang=in</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramabox/search" data-params='[{"key":"q","label":"Keyword","default":"romance"},{"key":"page","label":"Page","default":"1"},{"key":"lang","label":"Lang","default":"in"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabox/search</div><div class="ep-qs">?q=romance&lang=in</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabox/search" data-params='[{"key":"q","label":"Keyword","default":"romance"},{"key":"page","label":"Page","default":"1"},{"key":"lang","label":"Language","default":"in"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabox/detail</div><div class="ep-params">?id=xxx&lang=en</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramabox/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Lang","default":"en"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabox/detail</div><div class="ep-qs">?id=xxx&lang=en</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabox/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"en"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabox/episodes</div><div class="ep-params">?id=xxx&lang=in</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramabox/episodes" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Lang","default":"in"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabox/episodes</div><div class="ep-qs">?id=xxx&lang=in</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabox/episodes" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"in"}]'></div>
       </div>
     </div>
   </div>
 
   <!-- Melolo -->
   <div class="platform ml">
-    <div class="platform-header">
-      <div class="platform-icon">🎬</div>
-      <div><div class="platform-name">Melolo</div><div class="platform-desc">4 endpoints &bull; Indonesian focus</div></div>
+    <div class="platform-top">
+      <div class="p-icon">🎬</div>
+      <div>
+        <div class="p-name">Melolo</div>
+        <div class="p-meta">4 endpoints · Indonesian focus</div>
+      </div>
     </div>
-    <div class="endpoints">
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/melolo/home</div><div class="ep-params">?lang=id&offset=0</div></div>
-          <span class="toggle-icon">▼</span>
+    <div class="ep-list">
+      <div class="ep-item" data-url="/melolo/home" data-params='[{"key":"lang","label":"Lang","default":"id"},{"key":"offset","label":"Offset","default":"0"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/melolo/home</div><div class="ep-qs">?lang=id&offset=0</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/melolo/home" data-params='[{"key":"lang","label":"Language","default":"id"},{"key":"offset","label":"Offset","default":"0"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/melolo/search</div><div class="ep-params">?q=drama&lang=id</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/melolo/search" data-params='[{"key":"q","label":"Keyword","default":"drama"},{"key":"lang","label":"Lang","default":"id"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/melolo/search</div><div class="ep-qs">?q=drama&lang=id</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/melolo/search" data-params='[{"key":"q","label":"Keyword","default":"drama"},{"key":"lang","label":"Language","default":"id"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/melolo/detail</div><div class="ep-params">?id=xxx&lang=id</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/melolo/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Lang","default":"id"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/melolo/detail</div><div class="ep-qs">?id=xxx&lang=id</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/melolo/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"id"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/melolo/video</div><div class="ep-params">?id=xxx&ep=1</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/melolo/video" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"ep","label":"Episode","default":"1"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/melolo/video</div><div class="ep-qs">?id=xxx&ep=1</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/melolo/video" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"ep","label":"Episode","default":"1"}]'></div>
       </div>
     </div>
   </div>
 
   <!-- DramaBite -->
   <div class="platform dbt">
-    <div class="platform-header">
-      <div class="platform-icon">🍿</div>
-      <div><div class="platform-name">DramaBite</div><div class="platform-desc">8 endpoints &bull; Full featured</div></div>
+    <div class="platform-top">
+      <div class="p-icon">🍿</div>
+      <div>
+        <div class="p-name">DramaBite</div>
+        <div class="p-meta">8 endpoints · Full featured</div>
+      </div>
     </div>
-    <div class="endpoints">
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabite/dramas</div><div class="ep-params">?lang=id&page=0</div></div>
-          <span class="toggle-icon">▼</span>
+    <div class="ep-list">
+      <div class="ep-item" data-url="/dramabite/dramas" data-params='[{"key":"lang","label":"Lang","default":"id"},{"key":"page","label":"Page","default":"0"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabite/dramas</div><div class="ep-qs">?lang=id&page=0</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabite/dramas" data-params='[{"key":"lang","label":"Language","default":"id"},{"key":"page","label":"Page","default":"0"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabite/foryou</div><div class="ep-params">?lang=id&page=0</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramabite/foryou" data-params='[{"key":"lang","label":"Lang","default":"id"},{"key":"page","label":"Page","default":"0"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabite/foryou</div><div class="ep-qs">?lang=id&page=0</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabite/foryou" data-params='[{"key":"lang","label":"Language","default":"id"},{"key":"page","label":"Page","default":"0"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabite/hot</div><div class="ep-params">?lang=id</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramabite/hot" data-params='[{"key":"lang","label":"Lang","default":"id"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabite/hot</div><div class="ep-qs">?lang=id</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabite/hot" data-params='[{"key":"lang","label":"Language","default":"id"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabite/recommend</div><div class="ep-params">?lang=id&page=0</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramabite/recommend" data-params='[{"key":"lang","label":"Lang","default":"id"},{"key":"page","label":"Page","default":"0"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabite/recommend</div><div class="ep-qs">?lang=id&page=0</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabite/recommend" data-params='[{"key":"lang","label":"Language","default":"id"},{"key":"page","label":"Page","default":"0"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabite/search</div><div class="ep-params">?q=love&lang=id&limit=20</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramabite/search" data-params='[{"key":"q","label":"Keyword","default":"love"},{"key":"lang","label":"Lang","default":"id"},{"key":"limit","label":"Limit","default":"20"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabite/search</div><div class="ep-qs">?q=love&lang=id&limit=20</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabite/search" data-params='[{"key":"q","label":"Keyword","default":"love"},{"key":"lang","label":"Language","default":"id"},{"key":"limit","label":"Limit","default":"20"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabite/detail</div><div class="ep-params">?id=xxx&lang=id</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramabite/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Lang","default":"id"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabite/detail</div><div class="ep-qs">?id=xxx&lang=id</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabite/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"id"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabite/likes</div><div class="ep-params">?id=xxx&lang=id</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramabite/likes" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Lang","default":"id"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabite/likes</div><div class="ep-qs">?id=xxx&lang=id</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabite/likes" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"id"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramabite/episode</div><div class="ep-params">?id=xxx&ep=1&lang=id&quality=default</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramabite/episode" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"lang","label":"Lang","default":"id"},{"key":"quality","label":"Quality","default":"default"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramabite/episode</div><div class="ep-qs">?id=xxx&ep=1&quality=default</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramabite/episode" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"lang","label":"Language","default":"id"},{"key":"quality","label":"Quality","default":"default"}]'></div>
       </div>
     </div>
   </div>
 
   <!-- DramaNova -->
   <div class="platform dnv">
-    <div class="platform-header">
-      <div class="platform-icon">⭐</div>
-      <div><div class="platform-name">DramaNova</div><div class="platform-desc">6 endpoints &bull; HD streaming</div></div>
+    <div class="platform-top">
+      <div class="p-icon">⭐</div>
+      <div>
+        <div class="p-name">DramaNova</div>
+        <div class="p-meta">6 endpoints · HD streaming</div>
+      </div>
     </div>
-    <div class="endpoints">
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramanova/dramas</div><div class="ep-params">?lang=in&page=1&size=20</div></div>
-          <span class="toggle-icon">▼</span>
+    <div class="ep-list">
+      <div class="ep-item" data-url="/dramanova/dramas" data-params='[{"key":"lang","label":"Lang","default":"in"},{"key":"page","label":"Page","default":"1"},{"key":"size","label":"Size","default":"20"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramanova/dramas</div><div class="ep-qs">?lang=in&page=1&size=20</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramanova/dramas" data-params='[{"key":"lang","label":"Language","default":"in"},{"key":"page","label":"Page","default":"1"},{"key":"size","label":"Size","default":"20"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramanova/detail</div><div class="ep-params">?id=xxx&lang=in</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramanova/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Lang","default":"in"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramanova/detail</div><div class="ep-qs">?id=xxx&lang=in</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramanova/detail" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"lang","label":"Language","default":"in"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramanova/video</div><div class="ep-params">?id=xxx&ep=1&lang=in</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramanova/video" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"lang","label":"Lang","default":"in"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramanova/video</div><div class="ep-qs">?id=xxx&ep=1&lang=in</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramanova/video" data-params='[{"key":"id","label":"Drama ID","default":""},{"key":"ep","label":"Episode","default":"1"},{"key":"lang","label":"Language","default":"in"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramanova/search</div><div class="ep-params">?q=action&lang=in</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramanova/search" data-params='[{"key":"q","label":"Keyword","default":"action"},{"key":"lang","label":"Lang","default":"in"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramanova/search</div><div class="ep-qs">?q=action&lang=in</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramanova/search" data-params='[{"key":"q","label":"Keyword","default":"action"},{"key":"lang","label":"Language","default":"in"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramanova/modules</div><div class="ep-params">?lang=in</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramanova/modules" data-params='[{"key":"lang","label":"Lang","default":"in"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramanova/modules</div><div class="ep-qs">?lang=in</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramanova/modules" data-params='[{"key":"lang","label":"Language","default":"in"}]'></div>
       </div>
-      <div class="endpoint-item">
-        <div class="endpoint-row" onclick="togglePanel(this)">
-          <span class="method">GET</span>
-          <div class="ep-info"><div class="ep-path">/dramanova/recommend</div><div class="ep-params">?lang=in&category=dramanova_hot</div></div>
-          <span class="toggle-icon">▼</span>
+      <div class="ep-item" data-url="/dramanova/recommend" data-params='[{"key":"lang","label":"Lang","default":"in"},{"key":"category","label":"Category","default":"dramanova_hot"},{"key":"page","label":"Page","default":"1"},{"key":"size","label":"Size","default":"5"}]'>
+        <div class="ep-head" onclick="toggle(this.parentElement)">
+          <span class="method-badge">GET</span>
+          <div class="ep-path-wrap"><div class="ep-path">/dramanova/recommend</div><div class="ep-qs">?lang=in&category=dramanova_hot</div></div>
+          <span class="ep-chevron">▼</span>
         </div>
-        <div class="try-panel" data-url="/dramanova/recommend" data-params='[{"key":"lang","label":"Language","default":"in"},{"key":"category","label":"Category Key","default":"dramanova_hot"},{"key":"page","label":"Page","default":"1"},{"key":"size","label":"Size","default":"5"}]'></div>
       </div>
     </div>
   </div>
 
-</div>
+</div><!-- /.platforms -->
 
 <footer>
-  <p>Built with ❤️ by <a href="#">SanzzXD</a></p>
-  <p style="margin-top:8px;font-size:12px;color:#3f3f46">DramaCina Multi Platform API &bull; v2.0 &bull; Powered by Vercel</p>
+  <p>Built with ❤️ by <a href="#">SanzzXD</a> &mdash; DramaCina Multi Platform API &bull; v2.0</p>
+  <span class="footer-badge">Powered by Vercel</span>
 </footer>
-</div>
+
+</div><!-- /.wrap -->
 
 <script>
-// Counter animation
-document.querySelectorAll('.stat-num[data-target]').forEach(el => {
-  const target = parseInt(el.dataset.target), step = Math.ceil(target / 30);
-  let cur = 0;
-  const t = setInterval(() => { cur = Math.min(cur + step, target); el.textContent = cur; if (cur >= target) clearInterval(t); }, 30);
+// ── Counter animation ────────────────────────────────────────
+document.querySelectorAll('[data-count]').forEach(el => {
+  const target = +el.dataset.count, step = Math.ceil(target / 30);
+  let n = 0;
+  const t = setInterval(() => { n = Math.min(n + step, target); el.textContent = n; if (n >= target) clearInterval(t); }, 30);
 });
 
-// Build try panels dynamically
-document.querySelectorAll('.try-panel').forEach(panel => {
-  const params = JSON.parse(panel.dataset.params || '[]');
-  const url = panel.dataset.url;
-  let html = '<div class="try-label">Try It Live</div>';
+// ── Build try panel for each endpoint item ───────────────────
+document.querySelectorAll('.ep-item').forEach(item => {
+  const params = JSON.parse(item.dataset.params || '[]');
+  const url    = item.dataset.url;
+
+  const panel  = document.createElement('div');
+  panel.className = 'try-panel';
+
+  let html = `<div class="try-header">Try It Live</div>`;
+  html += `<div class="params-grid">`;
   params.forEach(p => {
-    html += `<div class="param-group"><div class="param-label">${p.label}</div><input class="param-input" data-key="${p.key}" value="${p.default}" placeholder="${p.default || p.key}"/></div>`;
+    html += `<div class="param-group">
+      <div class="param-label">${p.label}</div>
+      <input class="param-input" data-key="${p.key}" value="${p.default}" placeholder="${p.key}" />
+    </div>`;
   });
-  html += `<div class="url-preview-wrap"><div class="url-preview" id="preview-${url.replace(/\//g,'-')}"></div><button class="copy-btn" onclick="copyUrl(this)" title="Copy URL">⧉</button></div>`;
-  html += `<button class="exec-btn" onclick="execute(this,'${url}')">▶&nbsp; Execute</button>`;
-  html += `<div class="response-box"><div class="response-header"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span class="res-status"></span></div><div class="response-body"></div></div>`;
+  html += `</div>`;
+  html += `<div class="url-row">
+    <div class="url-display"><span class="url-method">GET</span><span class="url-text"></span></div>
+    <button class="copy-url-btn" title="Copy URL" onclick="copyUrl(this)">⧉</button>
+  </div>`;
+  html += `<button class="run-btn" onclick="run(this, '${url}')">▶ &nbsp;Run</button>`;
+  html += `<div class="resp-box">
+    <div class="resp-bar">
+      <div class="resp-dots"><span class="rd rd-r"></span><span class="rd rd-y"></span><span class="rd rd-g"></span></div>
+      <div class="resp-meta"><span class="resp-label">JSON Response</span><span class="resp-code"></span></div>
+    </div>
+    <div class="resp-body"></div>
+  </div>`;
+
   panel.innerHTML = html;
-  // Wire inputs to update URL preview live
+  item.appendChild(panel);
+
+  // Wire live URL update
   panel.querySelectorAll('.param-input').forEach(inp => {
-    inp.addEventListener('input', () => updateUrl(panel));
+    inp.addEventListener('input', () => refreshUrl(panel, url));
   });
-  // Init URL preview
-  updateUrl(panel);
+  refreshUrl(panel, url);
 });
 
-// Update URL preview whenever an input changes
-function updateUrl(panel) {
-  const url = panel.dataset.url;
+function refreshUrl(panel, url) {
   const qs = [];
   panel.querySelectorAll('.param-input').forEach(inp => {
     if (inp.value.trim()) qs.push(`${inp.dataset.key}=${encodeURIComponent(inp.value.trim())}`);
   });
   const full = location.origin + url + (qs.length ? '?' + qs.join('&') : '');
-  const preview = panel.querySelector('.url-preview');
-  if (preview) preview.textContent = full;
+  panel.querySelector('.url-text').textContent = full;
 }
 
-// Copy URL to clipboard
-function copyUrl(btn) {
-  const preview = btn.previousElementSibling;
-  if (!preview) return;
-  navigator.clipboard.writeText(preview.textContent).then(() => {
-    btn.classList.add('copied');
-    btn.textContent = '✓';
-    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '⧉'; }, 1500);
-  });
-}
-
-// Toggle open/close panel
-function togglePanel(row) {
-  const panel = row.nextElementSibling;
-  const isOpen = panel.classList.contains('open');
-  row.closest('.endpoints').querySelectorAll('.try-panel.open').forEach(p => {
-    p.classList.remove('open');
-    p.previousElementSibling.classList.remove('active');
-  });
+// ── Toggle open/close ────────────────────────────────────────
+function toggle(item) {
+  const isOpen = item.classList.contains('open');
+  // Close all in same ep-list
+  item.closest('.ep-list').querySelectorAll('.ep-item.open').forEach(i => i.classList.remove('open'));
   if (!isOpen) {
-    panel.classList.add('open');
-    row.classList.add('active');
-    setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 120);
+    item.classList.add('open');
+    setTimeout(() => item.querySelector('.try-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
   }
 }
 
-// Syntax highlight JSON
-function highlight(json) {
+// ── Copy URL ─────────────────────────────────────────────────
+function copyUrl(btn) {
+  const txt = btn.previousElementSibling.querySelector('.url-text').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    btn.classList.add('ok'); btn.textContent = '✓';
+    setTimeout(() => { btn.classList.remove('ok'); btn.textContent = '⧉'; }, 1500);
+  });
+}
+
+// ── JSON syntax highlight ────────────────────────────────────
+function hl(json) {
   return json.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
     .replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, m => {
       if (/^"/.test(m)) return /:$/.test(m) ? `<span class="jk">${m}</span>` : `<span class="jstr">${m}</span>`;
@@ -501,40 +767,40 @@ function highlight(json) {
     });
 }
 
-// Execute request
-async function execute(btn, url) {
-  const panel = btn.closest('.try-panel');
+// ── Run request ──────────────────────────────────────────────
+async function run(btn, url) {
+  const panel  = btn.closest('.try-panel');
   const qs = [];
   panel.querySelectorAll('.param-input').forEach(inp => {
     if (inp.value.trim()) qs.push(`${inp.dataset.key}=${encodeURIComponent(inp.value.trim())}`);
   });
   const fullUrl = url + (qs.length ? '?' + qs.join('&') : '');
-  const resBox = panel.querySelector('.response-box');
-  const resBody = panel.querySelector('.response-body');
-  const resStat = panel.querySelector('.res-status');
 
-  btn.classList.add('loading');
-  btn.innerHTML = '<span style="display:inline-block;animation:spin .7s linear infinite">⟳</span>&nbsp; Loading...';
+  const resBox  = panel.querySelector('.resp-box');
+  const resBody = panel.querySelector('.resp-body');
+  const resCode = panel.querySelector('.resp-code');
+
+  btn.classList.add('busy');
+  btn.innerHTML = '<span class="spinning">⟳</span>&nbsp; Running...';
   resBox.classList.add('show');
-  resBody.innerHTML = '<span style="color:#52525b">Fetching...</span>';
-  resStat.textContent = '';
-  resStat.className = 'res-status';
+  resBody.innerHTML = '<span style="color:var(--muted)">Fetching...</span>';
+  resCode.textContent = ''; resCode.className = 'resp-code';
 
   try {
-    const t0 = Date.now();
+    const t0  = Date.now();
     const res = await fetch(fullUrl);
-    const ms = Date.now() - t0;
+    const ms  = Date.now() - t0;
     const data = await res.json();
-    resBody.innerHTML = highlight(JSON.stringify(data, null, 2));
-    resStat.textContent = `${res.status} · ${ms}ms`;
-    resStat.classList.add(res.ok ? 's-ok' : 's-err');
+    resBody.innerHTML = hl(JSON.stringify(data, null, 2));
+    resCode.textContent = `${res.status} · ${ms}ms`;
+    resCode.classList.add(res.ok ? 'rc-ok' : 'rc-err');
   } catch(e) {
     resBody.textContent = 'Error: ' + e.message;
-    resStat.textContent = 'Error';
-    resStat.classList.add('s-err');
+    resCode.textContent = 'Error';
+    resCode.classList.add('rc-err');
   } finally {
-    btn.classList.remove('loading');
-    btn.innerHTML = '▶&nbsp; Execute';
+    btn.classList.remove('busy');
+    btn.innerHTML = '▶ &nbsp;Run';
   }
 }
 </script>
