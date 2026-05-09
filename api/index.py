@@ -6,8 +6,10 @@ import json
 import re
 import time
 from flask import Flask, request, jsonify, Response, render_template
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app, origins="*", supports_credentials=False)
 
 # ============================================================
 # KONFIGURASI
@@ -65,7 +67,7 @@ def err(action, source, msg):
 def dx(url, params=None, hdrs=None):
     try:
         h = {**HEADERS, **(hdrs or {})}
-        r = s.get(url, params=params, headers=h, timeout=20)
+        r = s.get(url, params=params, headers=h, timeout=8)
         return r.json() if r.status_code == 200 else None
     except:
         return None
@@ -243,26 +245,19 @@ def ml_detail(did, lang="id"):
 
 def ml_video(did, ep=1):
     try:
-        candidate_ids = [str(did)]
-        detail = dx(f"{ML_BASE}/api/detail/{did}", {"lang": "id"}, ML_H)
-        if detail and detail.get("code") == 0:
-            for v in (detail.get("videos", []) or []):
-                if int(v.get("episode", 0)) == int(ep):
-                    vid = str(v.get("vid", ""))
-                    if vid and vid not in candidate_ids: candidate_ids.append(vid)
-                    break
-        last_error = "gagal"
-        for current_id in candidate_ids:
-            h = {**HEADERS, **ML_H}
-            r = s.get(f"{ML_BASE}/api/video", params={"id": current_id, "ep": ep, "code": TOKEN_ML}, headers=h, timeout=20)
-            if r.status_code != 200: last_error = f"HTTP {r.status_code}"; continue
-            try: data = r.json()
-            except: last_error = "response bukan json"; continue
-            if data.get("code") != 200: last_error = data.get("msg") or data.get("message") or f"code={data.get('code')}"; continue
-            ql = data.get("qualityList", []) or []
-            quality_list = [{"label": q.get("label", ""), "url": q.get("url", ""), "type": "mp4"} for q in ql]
-            return ok("video", "melolo", {"dramaId": did, "usedId": current_id, "episode": data.get("episodeNumber", ep), "number": data.get("number", ep), "videoUrl": data.get("videoUrl", ""), "locked": data.get("locked", False), "qualityList": quality_list, "platform": "melolo"})
-        return err("video", "melolo", f"{last_error} | tried={candidate_ids}")
+        h = {**HEADERS, **ML_H}
+        r = s.get(f"{ML_BASE}/api/video", params={"id": did, "ep": ep, "code": TOKEN_ML}, headers=h, timeout=8)
+        if r.status_code != 200:
+            return err("video", "melolo", f"HTTP {r.status_code}")
+        try:
+            data = r.json()
+        except:
+            return err("video", "melolo", "response bukan json")
+        if data.get("code") != 200:
+            return err("video", "melolo", data.get("msg") or data.get("message") or f"code={data.get('code')}")
+        ql = data.get("qualityList", []) or []
+        quality_list = [{"label": q.get("label", ""), "url": q.get("url", ""), "type": "mp4"} for q in ql]
+        return ok("video", "melolo", {"dramaId": did, "episode": data.get("episodeNumber", ep), "number": data.get("number", ep), "videoUrl": data.get("videoUrl", ""), "locked": data.get("locked", False), "qualityList": quality_list, "platform": "melolo"})
     except Exception as e:
         return err("video", "melolo", str(e))
 
