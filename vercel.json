@@ -5,7 +5,11 @@
       "src": "api/index.py",
       "use": "@vercel/python",
       "config": {
-        "includeFiles": ["api/templates/**"]
+        "includeFiles": [
+          "api/templates/**",
+          "api/cors_config.py",
+          "api/middleware.py"
+        ]
       }
     }
   ],
