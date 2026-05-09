@@ -94,6 +94,11 @@ h1{font-size:42px;font-weight:800;background:linear-gradient(135deg,#8b5cf6,#ec4
 .response-body::-webkit-scrollbar{width:4px}
 .response-body::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
 .jk{color:#a78bfa}.jstr{color:#4ade80}.jnum{color:#fb923c}.jbool{color:#60a5fa}.jnull{color:#f87171}
+.url-preview-wrap{display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:6px}
+.url-preview{flex:1;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.08);border-radius:8px;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;color:#71717a;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:36px;line-height:20px}
+.copy-btn{flex-shrink:0;width:36px;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);color:#a1a1aa;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.copy-btn:hover{background:rgba(255,255,255,.1);color:#fff}
+.copy-btn.copied{background:rgba(34,197,94,.15);color:#4ade80;border-color:rgba(34,197,94,.3)}
 .uptime{display:inline-flex;align-items:center;gap:6px;padding:8px 20px;border-radius:20px;background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.2);color:#4ade80;font-size:13px;font-weight:500;margin-top:20px}
 .uptime-dot{width:8px;height:8px;border-radius:50%;background:#4ade80;animation:blink 1.5s infinite}
 footer{text-align:center;padding:60px 20px 40px;color:#52525b;font-size:13px}
@@ -435,10 +440,40 @@ document.querySelectorAll('.try-panel').forEach(panel => {
   params.forEach(p => {
     html += `<div class="param-group"><div class="param-label">${p.label}</div><input class="param-input" data-key="${p.key}" value="${p.default}" placeholder="${p.default || p.key}"/></div>`;
   });
+  html += `<div class="url-preview-wrap"><div class="url-preview" id="preview-${url.replace(/\//g,'-')}"></div><button class="copy-btn" onclick="copyUrl(this)" title="Copy URL">⧉</button></div>`;
   html += `<button class="exec-btn" onclick="execute(this,'${url}')">▶&nbsp; Execute</button>`;
   html += `<div class="response-box"><div class="response-header"><div class="dots"><span class="dot dot-r"></span><span class="dot dot-y"></span><span class="dot dot-g"></span></div><span class="res-status"></span></div><div class="response-body"></div></div>`;
   panel.innerHTML = html;
+  // Wire inputs to update URL preview live
+  panel.querySelectorAll('.param-input').forEach(inp => {
+    inp.addEventListener('input', () => updateUrl(panel));
+  });
+  // Init URL preview
+  updateUrl(panel);
 });
+
+// Update URL preview whenever an input changes
+function updateUrl(panel) {
+  const url = panel.dataset.url;
+  const qs = [];
+  panel.querySelectorAll('.param-input').forEach(inp => {
+    if (inp.value.trim()) qs.push(`${inp.dataset.key}=${encodeURIComponent(inp.value.trim())}`);
+  });
+  const full = location.origin + url + (qs.length ? '?' + qs.join('&') : '');
+  const preview = panel.querySelector('.url-preview');
+  if (preview) preview.textContent = full;
+}
+
+// Copy URL to clipboard
+function copyUrl(btn) {
+  const preview = btn.previousElementSibling;
+  if (!preview) return;
+  navigator.clipboard.writeText(preview.textContent).then(() => {
+    btn.classList.add('copied');
+    btn.textContent = '✓';
+    setTimeout(() => { btn.classList.remove('copied'); btn.textContent = '⧉'; }, 1500);
+  });
+}
 
 // Toggle open/close panel
 function togglePanel(row) {
