@@ -488,15 +488,16 @@ def route_ml_video():
 @app.route("/melolo/proxy")
 def route_ml_proxy():
     """
-    Proxy video drm-stream MeloLo ke browser.
+    Proxy video drm-stream MeloLo.
+    Strategi: fetch dari CDN di server (dengan header yang benar),
+    lalu cek apakah CDN redirect ke URL lain — kalau iya, return
+    URL final itu supaya browser bisa akses langsung.
     Params: url=<encoded drm-stream URL>
-    Contoh: /melolo/proxy?url=https://cnd.dramabos.pro/api/melolo/drm-stream/xxx
     """
     video_url = p("url")
     if not video_url:
         return jsonify(err("proxy", "melolo", "param url wajib diisi")), 400
 
-    # Whitelist domain supaya tidak disalahgunakan sebagai open proxy
     from urllib.parse import urlparse
     parsed = urlparse(video_url)
     ALLOWED_HOSTS = {"cnd.dramabos.pro", "dramabos.pro", "melolo.dramabos.my.id"}
@@ -505,51 +506,66 @@ def route_ml_proxy():
 
     try:
         proxy_headers = {
-            **HEADERS,
-            **ML_H,
-            "Referer": "https://melolo.dramabos.my.id/",
+            "User-Agent": "Mozilla/5.0 (Linux; Android 12; SM-G991B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Mobile Safari/537.36",
+            "Accept": "*/*",
+            "Accept-Language": "id-ID,id;q=0.9",
             "Origin": "https://melolo.dramabos.my.id",
+            "Referer": "https://melolo.dramabos.my.id/",
+            "token": TOKEN_ML,
+            "Authorization": f"Bearer {TOKEN_ML}",
         }
-        # Range support supaya seek video bisa jalan
+
         range_header = request.headers.get("Range")
         if range_header:
             proxy_headers["Range"] = range_header
 
+        # allow_redirects=True — ikuti redirect CDN
         upstream = req.get(
             video_url,
             headers=proxy_headers,
             stream=True,
-            timeout=15,
+            timeout=25,
+            allow_redirects=True,
         )
 
-        # Forward headers penting dari upstream
-        resp_headers = {}
-        for h in ("Content-Type", "Content-Length", "Content-Range",
-                  "Accept-Ranges", "Cache-Control"):
+        # Kalau setelah redirect URL-nya berubah dan bisa diakses langsung,
+        # return redirect URL supaya browser fetch langsung (hemat Vercel timeout)
+        final_url = upstream.url
+        if final_url != video_url and upstream.status_code in (200, 206):
+            # URL final sudah bisa diakses publik, redirect browser ke sana
+            from flask import redirect as flask_redirect
+            resp = flask_redirect(final_url, code=302)
+            resp.headers["Access-Control-Allow-Origin"] = "*"
+            return resp
+
+        if upstream.status_code == 403:
+            return jsonify(err("proxy", "melolo", "CDN menolak request (403) — URL mungkin expired")), 403
+
+        resp_headers = {
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Headers": "Range",
+            "Access-Control-Expose-Headers": "Content-Length, Content-Range, Accept-Ranges",
+        }
+        for h in ("Content-Type", "Content-Length", "Content-Range", "Accept-Ranges", "Cache-Control"):
             val = upstream.headers.get(h)
             if val:
                 resp_headers[h] = val
 
-        # Pastikan CORS terbuka agar browser file:// bisa akses
-        resp_headers["Access-Control-Allow-Origin"] = "*"
-        resp_headers["Access-Control-Allow-Headers"] = "Range"
-
-        status_code = upstream.status_code  # biasanya 200 atau 206
-
-        def generate():
-            for chunk in upstream.iter_content(chunk_size=65536):
-                if chunk:
-                    yield chunk
-
-        return Response(
-            generate(),
-            status=status_code,
-            headers=resp_headers,
-            direct_passthrough=True,
-        )
+        # Buffer max 50MB supaya tidak timeout (video pendek ~5-15MB)
+        data = upstream.raw.read(52428800)
+        return Response(data, status=upstream.status_code, headers=resp_headers)
 
     except Exception as e:
         return jsonify(err("proxy", "melolo", str(e))), 500
+
+
+@app.route("/melolo/proxy", methods=["OPTIONS"])
+def route_ml_proxy_options():
+    resp = Response("")
+    resp.headers["Access-Control-Allow-Origin"] = "*"
+    resp.headers["Access-Control-Allow-Headers"] = "Range, Content-Type"
+    resp.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    return resp
 
 # ── DramaBite ────────────────────────────────────────────────
 @app.route("/dramabite/dramas")
