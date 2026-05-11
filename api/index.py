@@ -257,9 +257,43 @@ def ml_video(did, ep=1):
             return err("video", "melolo", data.get("msg") or data.get("message") or f"code={data.get('code')}")
         ql = data.get("qualityList", []) or []
         quality_list = [{"label": q.get("label", ""), "url": q.get("url", ""), "type": "mp4"} for q in ql]
-        return ok("video", "melolo", {"dramaId": did, "episode": data.get("episodeNumber", ep), "number": data.get("number", ep), "videoUrl": data.get("videoUrl", ""), "locked": data.get("locked", False), "qualityList": quality_list, "platform": "melolo"})
+        # Ambil videoUrl: prioritaskan dari qualityList, fallback ke videoUrl field
+        best_url = ""
+        for pref in ["1080p", "720p", "480p", "360p"]:
+            for q in ql:
+                if q.get("label") == pref and q.get("url"):
+                    best_url = q["url"]; break
+            if best_url: break
+        if not best_url and ql:
+            best_url = ql[0].get("url", "")
+        if not best_url:
+            best_url = data.get("videoUrl", "")
+        return ok("video", "melolo", {"dramaId": did, "episode": data.get("episodeNumber", ep), "number": data.get("number", ep), "videoUrl": best_url, "locked": data.get("locked", False), "qualityList": quality_list, "platform": "melolo"})
     except Exception as e:
         return err("video", "melolo", str(e))
+
+@app.route("/melolo/debug_video")
+def route_ml_debug_video():
+    """Debug: lihat raw response dari upstream melolo"""
+    did = p("id")
+    ep = pi("ep", 1)
+    if not did: return jsonify({"error": "param id wajib"})
+    try:
+        h = {**HEADERS, **ML_H}
+        r = s.get(f"{ML_BASE}/api/video", params={"id": did, "ep": ep, "code": TOKEN_ML}, headers=h, timeout=8)
+        try:
+            raw = r.json()
+        except:
+            raw = r.text
+        return jsonify({
+            "http_status": r.status_code,
+            "final_url": r.url,
+            "upstream_base": ML_BASE,
+            "raw_response": raw,
+            "response_headers": dict(r.headers)
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)})
 
 # ============================================================
 # DRAMABITE
