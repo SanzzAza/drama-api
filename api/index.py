@@ -485,6 +485,72 @@ def route_ml_video():
     if not did: return jsonify(err("video", "melolo", "param id wajib diisi"))
     return jsonify(ml_video(did, pi("ep", 1)))
 
+@app.route("/melolo/proxy")
+def route_ml_proxy():
+    """
+    Proxy video drm-stream MeloLo ke browser.
+    Params: url=<encoded drm-stream URL>
+    Contoh: /melolo/proxy?url=https://cnd.dramabos.pro/api/melolo/drm-stream/xxx
+    """
+    video_url = p("url")
+    if not video_url:
+        return jsonify(err("proxy", "melolo", "param url wajib diisi")), 400
+
+    # Whitelist domain supaya tidak disalahgunakan sebagai open proxy
+    from urllib.parse import urlparse
+    parsed = urlparse(video_url)
+    ALLOWED_HOSTS = {"cnd.dramabos.pro", "dramabos.pro", "melolo.dramabos.my.id"}
+    if parsed.hostname not in ALLOWED_HOSTS:
+        return jsonify(err("proxy", "melolo", f"domain tidak diizinkan: {parsed.hostname}")), 403
+
+    try:
+        proxy_headers = {
+            **HEADERS,
+            **ML_H,
+            "Referer": "https://melolo.dramabos.my.id/",
+            "Origin": "https://melolo.dramabos.my.id",
+        }
+        # Range support supaya seek video bisa jalan
+        range_header = request.headers.get("Range")
+        if range_header:
+            proxy_headers["Range"] = range_header
+
+        upstream = req.get(
+            video_url,
+            headers=proxy_headers,
+            stream=True,
+            timeout=15,
+        )
+
+        # Forward headers penting dari upstream
+        resp_headers = {}
+        for h in ("Content-Type", "Content-Length", "Content-Range",
+                  "Accept-Ranges", "Cache-Control"):
+            val = upstream.headers.get(h)
+            if val:
+                resp_headers[h] = val
+
+        # Pastikan CORS terbuka agar browser file:// bisa akses
+        resp_headers["Access-Control-Allow-Origin"] = "*"
+        resp_headers["Access-Control-Allow-Headers"] = "Range"
+
+        status_code = upstream.status_code  # biasanya 200 atau 206
+
+        def generate():
+            for chunk in upstream.iter_content(chunk_size=65536):
+                if chunk:
+                    yield chunk
+
+        return Response(
+            generate(),
+            status=status_code,
+            headers=resp_headers,
+            direct_passthrough=True,
+        )
+
+    except Exception as e:
+        return jsonify(err("proxy", "melolo", str(e))), 500
+
 # ── DramaBite ────────────────────────────────────────────────
 @app.route("/dramabite/dramas")
 def route_dbt_dramas():
